@@ -1,0 +1,127 @@
+/* Signal: the supplied design board applied to both discovery views. */
+.relationship-controls{display:none}
+#graph{cursor:grab}
+#graph .node{cursor:grab}
+#graph.is-dragging,#graph.is-dragging .node{cursor:grabbing;user-select:none}
+#graph.is-hovering .node{opacity:.18}
+#graph.is-hovering .node.hover-related{opacity:1}
+#graph.is-hovering .node.hover-related text{opacity:1}
+#graph.is-hovering .edge{opacity:.12}
+#graph.is-hovering .edge.hover-related{opacity:1;stroke-width:2.5;stroke:var(--accent)}
+#graph.is-hovering .edge.suggested.hover-related{stroke:var(--aqua);stroke-opacity:1}
+.graph-preview{position:absolute;top:145px;right:4vw;z-index:5;max-width:280px;max-height:200px;overflow:hidden;white-space:pre-line;font-size:10px;line-height:1.8;padding:12px 15px;background:var(--panel);border:1px solid var(--line);border-left:2px solid var(--aqua);color:var(--text);pointer-events:none;box-shadow:var(--shadow)}
+@media(max-width:750px){.graph-preview{top:135px;right:16px;max-width:220px;max-height:150px;font-size:9px}}
+.variant-A .relationship-controls{position:absolute;top:96px;left:4vw;right:4vw;z-index:4;display:flex;gap:16px;align-items:center;font-size:10px}
+.relationship-controls label{color:var(--muted)}
+.relationship-controls select{font:inherit;color:var(--text);background:var(--panel);border:1px solid var(--line);padding:7px;max-width:180px}
+.relationship-controls button{font-size:10px;background:var(--panel)}
+.connection-key{margin-left:auto;color:var(--muted)}
+.variant-A .graph-stage svg{padding:145px 24px 65px}
+.variant-A .graph-focus{max-width:310px;max-height:46vh;overflow:auto;bottom:24px;padding:14px 16px}
+.variant-A:not(.space-selected) .graph-focus{max-width:280px}
+.variant-A .graph-focus h2{font-size:17px}
+.variant-A .graph-controls{bottom:76px}
+.variant-A .panel-bar{bottom:24px}
+.edge.suggested{stroke:var(--aqua);stroke-dasharray:5 7;stroke-opacity:.38;stroke-width:1.2}
+.edge.shared{stroke-opacity:.65}
+.edge.suggested.selected{stroke:var(--aqua);stroke-opacity:1;stroke-width:2}
+.node text{font-size:12px}
+.node.crowded text{opacity:0}
+.node.crowded:hover text,.node.crowded:focus-visible text{opacity:1}
+.suggestion{margin-top:12px;padding-top:10px;border-top:1px solid var(--line)}
+.graph-focus .suggestion button{border:0;text-align:left;padding:0;color:var(--aqua);font-size:11px}
+.graph-focus .suggestion p{margin:5px 0 0;font-size:10px;line-height:1.65}
+#suggestions:empty{display:none}
+#suggestions{margin-top:14px}
+@media(max-width:750px){
+ .variant-A .relationship-controls{top:82px;left:20px;right:20px;gap:8px;flex-wrap:wrap}
+ .relationship-controls select{max-width:145px}.connection-key{display:none}
+ .variant-A .graph-stage svg{padding:140px 0 210px}
+ .variant-A .graph-focus{left:16px;right:16px;bottom:70px;max-width:none;max-height:25vh;padding:10px 12px}
+ .variant-A:not(.space-selected) .graph-focus{max-width:240px}
+ .variant-A .graph-controls{bottom:160px;right:12px}
+ .variant-A .panel-bar{bottom:22px}
+}
+body{background-image:radial-gradient(color-mix(in srgb,var(--accent) 19%,transparent) .6px,transparent .8px);background-size:24px 24px}
+::selection{background:var(--accent);color:var(--ink)}
+button,.demo,.tag,.toast,.switcher,.graph-controls{border-radius:0}
+button{transition:background .15s,border-color .15s,color .15s}
+button:hover{border-color:var(--accent)}
+.header{position:relative;background:var(--bg);border-bottom-color:color-mix(in srgb,var(--accent) 40%,var(--line))}
+.header:after{content:'';position:absolute;bottom:-1px;left:4vw;width:65px;height:3px;background:var(--accent);box-shadow:0 0 16px color-mix(in srgb,var(--accent) 35%,transparent)}
+.brand{font-family: 'Arial Black',Arial,sans-serif;text-transform:uppercase;font-size:23px;font-weight:900;letter-spacing:-1px;color:var(--accent)}
+.brand small{font-family:ui-monospace,monospace;color:var(--muted);letter-spacing:1px}
+.nav button{text-transform:uppercase;letter-spacing:.7px;font-size:10px}
+.nav button.active{color:var(--accent)}
+.demo{border-color:var(--line);color:var(--aqua);letter-spacing:1px}
+.searchbox,.variant-C .searchbox{position:relative;border-radius:0;background:var(--panel);border-color:var(--line);border-left:2px solid var(--accent)}
+.searchbox:focus-within{border-color:var(--accent);box-shadow:0 0 18px color-mix(in srgb,var(--accent) 8%,transparent)}
+.searchbox:after{content:'';position:absolute;right:-1px;bottom:-1px;width:13px;height:7px;border-right:2px solid var(--accent);border-bottom:2px solid var(--accent);pointer-events:none}
+.key{color:var(--aqua)}
+.variant-C #reset{border-radius:0;text-transform:uppercase;letter-spacing:.7px}
+.variant-C .card,.variant-C .card-open,.variant-C .art,.drawer-panel .art{border-radius:0}
+.variant-C .card-open{box-shadow:inset 0 0 0 1px var(--line)}
+.variant-C .card{outline:1px solid var(--line);outline-offset:-1px}
+.variant-C .card:hover,.variant-C .card:focus-within{outline-color:var(--accent);box-shadow:0 0 22px color-mix(in srgb,var(--accent) 9%,transparent)}
+.variant-C .card:after{content:'';position:absolute;bottom:0;right:0;width:16px;height:8px;border-bottom:2px solid var(--accent);border-right:2px solid var(--accent);pointer-events:none}
+.variant-C .card-open:after{background:linear-gradient(180deg,transparent 28%,#000b0b90 62%,#000b0bf5 100%)}
+.variant-C .card-open:hover:after{background:linear-gradient(180deg,#000b0b10 20%,#000b0bad 60%,#000b0bfa 100%)}
+.variant-C .card-body{color:#e0e0e0}
+.variant-C .card h3{color:#f0f5f5;text-transform:uppercase;letter-spacing:1px;font-weight:500}
+.variant-C .card p{color:#c1d0d6;text-shadow:0 1px 5px #000}
+.variant-C .save{border-radius:0;background:var(--accent);color:var(--ink);box-shadow:none;text-transform:uppercase;letter-spacing:.5px;clip-path:polygon(0 0,100% 0,100% calc(100% - 6px),calc(100% - 6px) 100%,0 100%)}
+.variant-C .save[aria-pressed=true]{background:var(--aqua);border-color:var(--aqua);color:var(--ink)}
+.art{background:var(--panel)}
+.art-label{color:#e0e0e0}
+.variant-A .graph-stage{background-image:radial-gradient(color-mix(in srgb,var(--accent) 25%,transparent) .7px,transparent .9px)}
+.edge{stroke:var(--line)}
+.edge.selected{stroke:var(--accent)}
+.node.selected circle{stroke:var(--accent)}
+.node.domain text{text-transform:uppercase;letter-spacing:1.5px}
+.node .ring{stroke:var(--accent)}
+.variant-A .graph-focus{border:1px solid var(--line);border-left:2px solid var(--accent);background:var(--panel)}
+.graph-focus h2,.drawer-panel h2{color:var(--accent);text-transform:uppercase;letter-spacing:1px}
+.graph-focus .eyebrow,.drawer-top .eyebrow{color:var(--aqua)}
+.graph-controls{border:1px solid var(--line)}
+.drawer-panel{border-left-color:var(--accent)}
+.detail-save{text-transform:uppercase;letter-spacing:1px}
+.switcher{background:var(--panel);border-color:var(--line);border-top-color:var(--accent);box-shadow:var(--shadow)}
+.switcher-center b{text-transform:uppercase;letter-spacing:1px}
+.toast{border-left-width:3px}
+/* Layered bloom: tight light at the source, softer spill onto nearby surfaces.
+   Applied to the footer wrapper so the save button's cut corner does not clip it. */
+html:not([data-theme=light]){
+  --glow-yellow:color-mix(in srgb,var(--accent) 24%,transparent);
+  --glow-yellow-soft:color-mix(in srgb,var(--accent) 8%,transparent);
+  --glow-cyan:color-mix(in srgb,var(--aqua) 22%,transparent);
+  --glow-edge:0 0 6px var(--glow-yellow),0 0 20px var(--glow-yellow-soft);
+}
+html:not([data-theme=light]) body{
+  background-image:radial-gradient(ellipse at 5% 0%,#ffdf3808,transparent 38%),radial-gradient(ellipse at 96% 80%,#00e5ff05,transparent 38%),radial-gradient(#ffdf3830 .6px,transparent .8px);
+  background-size:100% 100vh,100% 100vh,24px 24px;
+  background-attachment:fixed;
+}
+html:not([data-theme=light]) .brand,
+html:not([data-theme=light]) .nav button.active,
+html:not([data-theme=light]) .graph-focus h2,
+html:not([data-theme=light]) .drawer-panel h2{ text-shadow:0 0 7px var(--glow-yellow),0 0 22px var(--glow-yellow-soft) }
+html:not([data-theme=light]) .brand small{text-shadow:none}
+html:not([data-theme=light]) .header{box-shadow:0 3px 20px #ffdf3806}
+html:not([data-theme=light]) .header:after,
+html:not([data-theme=light]) .searchbox:after,
+html:not([data-theme=light]) .variant-C .card:after{box-shadow:var(--glow-edge)}
+html:not([data-theme=light]) .demo,
+html:not([data-theme=light]) .key{ text-shadow:0 0 9px var(--glow-cyan) }
+html:not([data-theme=light]) .searchbox:focus-within,
+html:not([data-theme=light]) .variant-C .card:hover,
+html:not([data-theme=light]) .variant-C .card:focus-within{box-shadow:var(--glow-edge)}
+html:not([data-theme=light]) .variant-C .card-footer{filter:drop-shadow(0 0 4px var(--glow-yellow)) drop-shadow(0 0 12px var(--glow-yellow-soft))}
+html:not([data-theme=light]) .variant-C .card-footer:has(.save[aria-pressed=true]){filter:drop-shadow(0 0 6px var(--glow-cyan))}
+html:not([data-theme=light]) .detail-save,
+html:not([data-theme=light]) .toast{box-shadow:var(--glow-edge)}
+html:not([data-theme=light]) .variant-A .graph-focus,
+html:not([data-theme=light]) .switcher{box-shadow:0 0 20px var(--glow-yellow-soft),var(--shadow)}
+html:not([data-theme=light]) .node circle{filter:drop-shadow(0 0 5px color-mix(in srgb,var(--aqua) 20%,transparent))}
+html:not([data-theme=light]) .node.selected circle,
+html:not([data-theme=light]) .edge.selected{filter:drop-shadow(0 0 4px var(--glow-yellow))}
+@media(max-width:750px){.brand{font-size:19px}.nav{gap:15px}.nav button{font-size:9px;letter-spacing:0}.variant-C .card h3{letter-spacing:.5px}}

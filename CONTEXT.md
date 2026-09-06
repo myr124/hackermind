@@ -21,6 +21,9 @@ A technical method or tool used by a project, such as computer vision. It is dis
 **Subcategory**:
 A problem space narrower than a parent problem space. A space may have multiple parents.
 
+**Suggested connection**:
+An explainable relationship between problem spaces based on a specific shared challenge or transferable approach, even when no catalog project belongs to both. It does not establish shared project membership or a subcategory relationship.
+
 **Recent prominence**:
 The number of distinct catalog projects in a problem space, including its subcategories, published within the last 90 days. It describes observed recent publication volume, not growth over time or complete ecosystem activity.
 

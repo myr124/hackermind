@@ -14,6 +14,20 @@ try {
   assert.ok(await cards.count() > 0, "Run a real discovery batch first");
   await page.getByRole("button", { name: "Light theme" }).click();
   assert.equal(await page.locator("[data-theme]").getAttribute("data-theme"), "light");
+  const liveSpaces = await (await page.request.get(`${base}/api/spaces`)).json();
+  if (liveSpaces.length) {
+    const loaded = page.waitForResponse(r => r.url().includes(`space_id=${liveSpaces[0].id}`));
+    await page.getByLabel("Browse a problem space").selectOption(String(liveSpaces[0].id));
+    assert.equal((await loaded).status(), 200);
+    await cards.first().click();
+    await page.locator("dialog blockquote").first().waitFor();
+    assert.ok((await page.locator("dialog blockquote").first().innerText()).length > 0);
+    await page.getByRole("button", { name: "Close" }).click();
+    const reset = page.waitForResponse(r => r.url().includes("/api/projects?offset=0") && !r.url().includes("space_id"));
+    await page.getByRole("button", { name: "Reset to all spaces" }).click();
+    await reset;
+    await cards.first().waitFor();
+  }
   const card = cards.last();
   await card.scrollIntoViewIfNeeded();
   await card.focus();

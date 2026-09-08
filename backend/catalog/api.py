@@ -39,7 +39,7 @@ def spaces():
             LEFT JOIN project_terms pt ON pt.term_id=t.id
             LEFT JOIN projects p ON p.id=pt.project_id AND p.eligible
                 AND EXISTS (SELECT 1 FROM source_records s WHERE s.project_id=p.id AND s.available)
-            WHERE t.kind='space' GROUP BY t.id ORDER BY total_count DESC,t.name""").fetchall()
+            WHERE t.kind='space' GROUP BY t.id HAVING count(DISTINCT p.id)>0 ORDER BY total_count DESC,t.name""").fetchall()
 
 
 @app.get("/projects/{project_id}")

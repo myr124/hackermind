@@ -13,7 +13,7 @@ def test_free_model_structured_request_and_validation():
         assert request.headers["Authorization"] == "Bearer test-key"
         return httpx.Response(200, json={"choices": [{"finish_reason": "stop", "message": {"content": '{"assignments": []}'}}]})
     with httpx.Client(transport=httpx.MockTransport(respond)) as client:
-        assert OpenRouter("test-key", client=client).generate([]) == {"assignments": []}
+        assert OpenRouter(" test-key\n", client=client).generate([]) == {"assignments": []}
 
 
 @pytest.mark.parametrize("status,body", [
@@ -33,3 +33,18 @@ def test_missing_key_and_paid_model_are_rejected_before_request():
         OpenRouter(None)
     with pytest.raises(ValueError, match="free"):
         OpenRouter("test-key", model="nvidia/nemotron-3-super-120b-a12b")
+    with pytest.raises(ValueError, match="embedded whitespace"):
+        OpenRouter("test\nkey")
+
+
+def test_transient_gateway_error_is_retried_once(monkeypatch):
+    calls = []
+    monkeypatch.setattr("catalog.openrouter.time.sleep", lambda _: None)
+    def respond(request):
+        calls.append(request)
+        if len(calls) == 1:
+            return httpx.Response(200, json={"error": {"code": 502}})
+        return httpx.Response(200, json={"choices": [{"finish_reason": "stop", "message": {"content": '{"assignments": []}'}}]})
+    with httpx.Client(transport=httpx.MockTransport(respond)) as client:
+        assert OpenRouter("test-key", client=client).generate([]) == {"assignments": []}
+    assert len(calls) == 2

@@ -33,9 +33,9 @@ def test_reuse_new_space_and_uncertainty():
 
 def test_reprocessing_and_distinct_kinds():
     with connect() as conn:
-        persist(conn, repo())
+        persist(conn, repo(description="An application for recording field observations using Python"))
     def generate(_):
-        return {"assignments": [assignment(), assignment(kind="domain", name="Field research"), assignment(kind="technology", name="Observation recording")]}
+        return {"assignments": [assignment(), assignment(kind="domain", name="Field research"), assignment(kind="technology", name="Python", evidence="Python")]}
     classify_batch(generate, "test-model")
     with connect() as conn:
         assert conn.execute("SELECT count(DISTINCT kind) AS n FROM terms").fetchone()["n"] == 3
@@ -91,3 +91,11 @@ def test_metadata_change_invalidates_assignments_and_schedules_reclassification(
         persist(conn, repo(description="A library for rendering diagrams"))
         assert conn.execute("SELECT count(*) AS n FROM project_terms").fetchone()["n"] == 0
     assert classify_batch(lambda _: {"assignments": []}, "test-model") == 1
+
+
+def test_unnamed_technology_is_left_unassigned():
+    with connect() as conn:
+        persist(conn, repo())
+    classify_batch(lambda _: {"assignments": [assignment(), assignment(kind="technology", name="Python")]}, "test-model")
+    with connect() as conn:
+        assert conn.execute("SELECT count(*) AS n FROM terms WHERE kind='technology'").fetchone()["n"] == 0

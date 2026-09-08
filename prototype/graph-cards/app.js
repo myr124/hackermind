@@ -37,11 +37,12 @@ const projects=[
  {id:'archive',name:'Memory garden',desc:'A small personal archive that makes old web pages feel discoverable again.',source:'GitHub',date:'2025-11-12',tags:['Rust'],spaces:['archives'],art:'terminal',label:'KEEP THE GOOD PARTS',detail:'An older project for preserving and exploring personal web collections. It is intentionally outside the recent window to demonstrate older-space browsing.'}
 ];
 if(largeSample)projects.push(...scaleProjects);
+broadenTaxonomy();
 const names={A:'Problem Spaces',C:'Recently Added'};
 const descriptions={A:'Explore the map. Follow a connection.',C:'Browse the builds. Collect inspiration.'};
 const params=new URLSearchParams(location.search);
-const state={variant:names[params.get('variant')]?params.get('variant'):'A',selected:null,domain:'',suggestions:true,query:'',tech:new Set(),saved:new Set(),mode:'explore',older:false,expanded:false,theme:'dark',mobile:'graph',zoom:1,panX:0,panY:0};
-let opened=null,returnFocus=null,frame=0,drag=null,moved=false,toastTimer;
+const state={variant:names[params.get('variant')]?params.get('variant'):'A',selected:null,domain:'',suggestions:true,query:'',tech:new Set(),saved:new Set(),mode:'explore',older:false,expanded:false,collapsed:false,theme:'dark',mobile:'graph',zoom:1,panX:0,panY:0};
+let opened=null,returnFocus=null,toastTimer;
 const recent=p=>p.date>='2026-06-07' && p.date<='2026-09-05';
 function descendantIds(id){const found=new Set([id]);let changed=true;while(changed){changed=false;for(const n of spaces)if(n.parents.some(p=>found.has(p))&&!found.has(n.id)){found.add(n.id);changed=true;}}return found;}
 function members(id){const ids=descendantIds(id);return projects.filter(p=>p.spaces.some(s=>ids.has(s)));}
@@ -82,14 +83,14 @@ function closeDetail(){$('#drawer').hidden=true;document.body.style.overflow='';
 $('#close-detail').onclick=closeDetail;$('#drawer').onclick=e=>{if(e.target===$('#drawer'))closeDetail();};
 function setSelected(id){state.selected=state.selected===id?null:id;state.mode='explore';document.querySelectorAll('[data-mode]').forEach(b=>b.classList.toggle('active',b.dataset.mode===state.mode));renderGraph(false);renderCards();renderIndex();}
 function renderIndex(){$('#domain-index').innerHTML=`<button class="domain-nav ${!state.selected?'active':''}" data-domain="">All domains <span>${String(domains.length).padStart(2,'0')}</span></button>`+domains.map(d=>`<button class="domain-nav ${state.selected===d.id?'active':''}" data-domain="${d.id}">${d.name} <span>${String(count(d.id)).padStart(2,'0')}</span></button>`).join('');$('#domain-index').querySelectorAll('button').forEach(b=>b.onclick=()=>{if(!b.dataset.domain){state.selected=null;renderGraph(false);renderCards();renderIndex();}else setSelected(b.dataset.domain);});}
-function applyTransform(){if(renderedDetail!==graphDetail()){renderGraph();return;}const cx=graphWidth/2,cy=graphHeight/2;$('#viewport').setAttribute('transform',`translate(${state.panX} ${state.panY}) translate(${cx} ${cy}) scale(${state.zoom}) translate(${-cx} ${-cy})`);updateGraphLabels();renderState();}
+function applyTransform(){applyGraphTransform();}
 function zoom(change){state.zoom=Math.max(.6,Math.min(6,state.zoom+change));applyTransform();}
 $('#zoom-in').onclick=()=>zoom(.2);$('#zoom-out').onclick=()=>zoom(-.2);$('#zoom-fit').onclick=()=>{state.zoom=1;state.panX=0;state.panY=0;applyTransform();};
 function renderFilters(){const tags=['Python','Computer vision','Local AI','Hardware','Rust'];$('#filters').innerHTML='<span class="filter-label">TECHNOLOGIES</span>'+tags.map(t=>`<button data-tech="${t}" aria-pressed="${state.tech.has(t)}">${t}</button>`).join('');$('#filters').querySelectorAll('button').forEach(b=>b.onclick=()=>{state.tech.has(b.dataset.tech)?state.tech.delete(b.dataset.tech):state.tech.add(b.dataset.tech);renderFilters();renderCards();});}
 function reset(){state.selected=null;state.domain='';$('#domain-filter').value='';state.query='';state.tech.clear();state.mode='explore';$('#search').value='';renderFilters();renderCards();renderGraph(false);renderIndex();document.querySelectorAll('[data-mode]').forEach(b=>b.classList.toggle('active',b.dataset.mode==='explore'));}
 $('#reset').onclick=reset;$('#search').oninput=e=>{state.query=e.target.value;renderCards();renderGraph(false);};
 $('#older').onclick=()=>{state.older=!state.older;$('#older').setAttribute('aria-pressed',state.older);renderGraph();renderState();};
-$('#expand').onclick=()=>{state.expanded=!state.expanded;$('#expand').setAttribute('aria-pressed',state.expanded);$('#expand').textContent=state.expanded?'Collapse subcategories −':'Expand subcategories +';renderGraph();renderState();};
+$('#expand').remove();
 $('#theme').onclick=()=>{state.theme=state.theme==='dark'?'light':'dark';document.documentElement.dataset.theme=state.theme;$('#theme span').textContent=state.theme==='dark'?'Light':'Dark';$('#theme').setAttribute('aria-label',`Switch to ${state.theme==='dark'?'light':'dark'} theme`);renderGraph(false);renderState();};
 function setMode(mode){state.mode=mode;state.selected=null;state.domain='';$('#domain-filter').value='';state.query='';state.tech.clear();$('#search').value='';document.querySelectorAll('[data-mode]').forEach(b=>b.classList.toggle('active',b.dataset.mode===mode));if(mode==='saved'){state.variant='C';setVariant();}renderCards();renderFilters();renderGraph(false);renderIndex();}
 document.querySelectorAll('[data-mode]').forEach(b=>b.onclick=()=>setMode(b.dataset.mode));$('#saved-mobile').onclick=()=>setMode(state.mode==='saved'?'explore':'saved');
@@ -102,6 +103,8 @@ function renderState(){
  $('#focus-copy').textContent=state.selected?`${count(state.selected)} recent / ${members(state.selected).length} total · ${result.length} matching projects`:`${domains.length} domains · ${spaces.length} spaces · ${result.length} matching projects · fictional sample`;
  $('#browse-projects').textContent=`Browse ${result.length} project${result.length===1?'':'s'} →`;
  $('#clear-space').hidden=!state.selected;
+ const criterion=spaces.find(n=>n.id===state.selected)?.criterion;
+ if(criterion)$('#focus-copy').textContent+=' · '+criterion;
  document.querySelectorAll('[data-view]').forEach(b=>b.classList.toggle('active',b.dataset.view===state.variant&&state.mode!=='saved'));
  document.querySelectorAll('[data-mode]').forEach(b=>b.classList.toggle('active',b.dataset.mode===state.mode));
 }
@@ -122,7 +125,8 @@ document.addEventListener('keydown',e=>{
  if(e.target.closest('input,textarea,select,[contenteditable]'))return;
  if(e.key==='/'){e.preventDefault();$('#search').focus();}
 });
-setupGraphControls();setMobile('graph');renderFilters();renderIndex();renderCards();renderGraph();setVariant();
+state.suggestions=false;
+setupGraphControls();setMobile('graph');renderFilters();renderIndex();renderCards();setVariant();renderGraph();
 window.prototypeState=snapshot;
 
-matchMedia('(max-width:750px)').addEventListener('change',()=>{positions.clear();state.zoom=1;state.panX=state.panY=0;renderGraph(false);});
+matchMedia('(max-width:750px)').addEventListener('change',()=>{state.zoom=1;state.panX=state.panY=0;renderGraph(false);});

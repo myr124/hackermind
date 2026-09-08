@@ -1,14 +1,36 @@
 /* Signal: the supplied design board applied to both discovery views. */
 .relationship-controls{display:none}
-#graph{cursor:grab}
-#graph .node{cursor:grab}
-#graph.is-dragging,#graph.is-dragging .node{cursor:grabbing;user-select:none}
-#graph.is-hovering .node{opacity:.18}
-#graph.is-hovering .node.hover-related{opacity:1}
-#graph.is-hovering .node.hover-related text{opacity:1}
-#graph.is-hovering .edge{opacity:.12}
-#graph.is-hovering .edge.hover-related{opacity:1;stroke-width:2.5;stroke:var(--accent)}
-#graph.is-hovering .edge.suggested.hover-related{stroke:var(--aqua);stroke-opacity:1}
+#graph:not(.show-projects) .project-node{opacity:.2!important}
+#graph:not(.show-subcategories) .subcategory-node{opacity:.4!important}
+#graph:not(.show-projects) .highcharts-data-label.project-node,
+#graph:not(.show-subcategories) .highcharts-data-label.subcategory-node{visibility:hidden}
+#graph .highcharts-data-label.hover-related,#graph .highcharts-data-label.selected{visibility:visible!important;opacity:1!important}
+#graph .highcharts-data-label.space-node text{font-size:13px!important;font-weight:600!important}
+#graph .membership{opacity:.24!important}
+#graph.show-projects .membership{opacity:.45!important}
+#graph .highcharts-link.parent{stroke-opacity:.7}
+.graph-stage{touch-action:none}
+#graph{cursor:grab;position:relative;width:100%;height:100%;touch-action:none;transform-origin:50% 50%}
+#graph .highcharts-container,#graph .highcharts-root{width:100%!important;height:100%!important;overflow:visible!important;padding:0!important}
+#graph .highcharts-point{cursor:grab}
+#graph.is-dragging,.graph-stage.is-dragging,#graph.is-dragging .highcharts-point{cursor:grabbing;user-select:none}
+#graph .highcharts-data-label{pointer-events:none}
+#graph.is-hovering .highcharts-point,
+#graph.is-hovering .highcharts-link,
+#graph.is-hovering .highcharts-data-label{opacity:.18!important}
+#graph.is-hovering .highcharts-point.hover-related,
+#graph.is-hovering .highcharts-link.hover-related,
+#graph.is-hovering .highcharts-data-label.hover-related{opacity:1!important}
+#graph .highcharts-point.dim,
+#graph .highcharts-link.dim{opacity:.46!important}
+#graph .highcharts-data-label.dim text{fill:var(--muted)!important}
+#graph .highcharts-point.selected{stroke:var(--accent)!important;stroke-width:2px!important}
+#graph .highcharts-link.selected{opacity:1!important;stroke:var(--accent)!important;stroke-width:2.5px!important}
+#graph .highcharts-link.suggested{stroke:var(--aqua)!important;stroke-dasharray:5 7!important;stroke-opacity:.38!important}
+#graph .highcharts-link.suggested.selected,
+#graph .highcharts-link.suggested.hover-related{stroke:var(--aqua)!important;stroke-opacity:1!important}
+#graph .highcharts-data-label text{fill:var(--text)!important;font:11px ui-monospace,monospace!important;paint-order:stroke;stroke:var(--panel);stroke-width:5px;stroke-linejoin:round}
+#graph .highcharts-data-label.selected text{fill:var(--accent)!important}
 .graph-preview{position:absolute;top:145px;right:4vw;z-index:5;max-width:280px;max-height:200px;overflow:hidden;white-space:pre-line;font-size:10px;line-height:1.8;padding:12px 15px;background:var(--panel);border:1px solid var(--line);border-left:2px solid var(--aqua);color:var(--text);pointer-events:none;box-shadow:var(--shadow)}
 @media(max-width:750px){.graph-preview{top:135px;right:16px;max-width:220px;max-height:150px;font-size:9px}}
 .variant-A .relationship-controls{position:absolute;top:96px;left:4vw;right:4vw;z-index:4;display:flex;gap:16px;align-items:center;font-size:10px}
@@ -16,7 +38,7 @@
 .relationship-controls select{font:inherit;color:var(--text);background:var(--panel);border:1px solid var(--line);padding:7px;max-width:180px}
 .relationship-controls button{font-size:10px;background:var(--panel)}
 .connection-key{margin-left:auto;color:var(--muted)}
-.variant-A .graph-stage svg{padding:145px 24px 65px}
+.variant-A .graph-stage #graph{padding:0}
 .variant-A .graph-focus{max-width:310px;max-height:46vh;overflow:auto;bottom:24px;padding:14px 16px}
 .variant-A:not(.space-selected) .graph-focus{max-width:280px}
 .variant-A .graph-focus h2{font-size:17px}
@@ -36,7 +58,7 @@
 @media(max-width:750px){
  .variant-A .relationship-controls{top:82px;left:20px;right:20px;gap:8px;flex-wrap:wrap}
  .relationship-controls select{max-width:145px}.connection-key{display:none}
- .variant-A .graph-stage svg{padding:140px 0 210px}
+ .variant-A .graph-stage #graph{padding:0}
  .variant-A .graph-focus{left:16px;right:16px;bottom:70px;max-width:none;max-height:25vh;padding:10px 12px}
  .variant-A:not(.space-selected) .graph-focus{max-width:240px}
  .variant-A .graph-controls{bottom:160px;right:12px}

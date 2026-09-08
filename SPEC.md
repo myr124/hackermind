@@ -555,13 +555,15 @@ This enables exploratory browsing rather than traditional search.
 
 ## Design System
 
-Hacker-themed design with a Gruvbox-like aesthetic, monospace fonts, and potentially ASCII art, while maintaining accessibility, ease of use, and readability.
+Hacker-themed Signal design with readable monospace typography and small ASCII accents, while maintaining accessibility, ease of use, and readability.
 
-Default to warm charcoal surfaces, cream text, and muted earthy accents, with a warm light theme available. Use small ASCII accents in the wordmark and empty states. Keep controls conventional, keyboard focus visible, and meaning understandable without color alone.
+Default to near-black surfaces, cool neutral text, warm-yellow primary accents, and cyan secondary accents, with an accessible light theme available. Use small ASCII accents in the wordmark and empty states. Keep controls conventional, keyboard focus visible, and meaning understandable without color alone.
 
-The graph uses labeled circular nodes and thin connections in a constellation layout that settles quickly. On larger screens it sits above a Pinterest-like project card feed; smaller screens provide separate Graph and Projects views. Detailed visual choices are recorded in the [Phase 1 specification](docs/phase-1-spec.md).
+The graph uses a circular constellation of broad problem spaces, specific subcategories, and projects, with explicit relationships and increasing detail prominence on zoom. Complementary Problem Spaces and Recently Added views preserve exploration state on desktop and mobile. Detailed behavior and acceptance scenarios are recorded in the [Phase 1 specification](docs/phase-1-spec.md).
 
 ## Frontend
+
+Use Sigma.js with Graphology for the discovery graph; see the [Phase 1 implementation boundaries](docs/phase-1-spec.md#implementation-boundaries).
 
 - Next.js
     
@@ -709,9 +711,10 @@ The initial version should focus on **discovery**, not trying to build the entir
 The first milestone is a locally runnable discovery experience for developers seeking side-project inspiration. Its complete requirements and acceptance scenarios are in [Phase 1 — Dynamic project discovery](docs/phase-1-spec.md).
 
 - Ingest projects from GitHub, Show HN, itch.io, Hugging Face Spaces, and Product Hunt.
-- Derive domains and problem spaces dynamically from projects, with automatic parent–subcategory relationships.
+- Derive domains and broad, need-based problem spaces dynamically from projects, with more specific spaces underneath and inclusive, evidence-based matching criteria.
 - Lead with an interactive node graph whose prominence reflects distinct catalog projects published in the last 90 days.
-- Explore project cards through graph selection, a recently published feed, and semantic search with filters.
+- Use a circular graph with explicit subcategory and project-membership links, stronger parent-space prominence, and zoom-based detail rather than taxonomy collapse. Suggested connections are optional and off by default.
+- Explore project cards through complementary Problem Spaces and Recently Added views, and semantic search with filters.
 - Inspect project details and save inspiration to private boards after signing in.
 - Preserve source provenance, deduplicate explicit cross-source identities, and show partial coverage honestly.
 

@@ -48,3 +48,13 @@ def test_transient_gateway_error_is_retried_once(monkeypatch):
     with httpx.Client(transport=httpx.MockTransport(respond)) as client:
         assert OpenRouter("test-key", client=client).generate([]) == {"assignments": []}
     assert len(calls) == 2
+
+
+def test_ultra_returns_validated_tool_arguments_without_executing_tools():
+    def respond(request):
+        body = json.loads(request.content)
+        assert "response_format" not in body
+        assert body["tool_choice"]["function"]["name"] == "catalog_result"
+        return httpx.Response(200, json={"choices": [{"finish_reason": "tool_calls", "message": {"tool_calls": [{"function": {"name": "catalog_result", "arguments": '{"assignments": []}'}}]}}]})
+    with httpx.Client(transport=httpx.MockTransport(respond)) as client:
+        assert OpenRouter("test",model="nvidia/nemotron-3-ultra-550b-a55b:free",client=client).generate([]) == {"assignments": []}

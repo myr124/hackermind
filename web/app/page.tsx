@@ -2,7 +2,7 @@
 import { useEffect, useRef, useState } from "react";
 
 type Project = { id: number; name: string; description: string; publication_date: string | null };
-type Term = { id: number; name: string; definition: string; explanation?: string; evidence?: string; total_count?: number };
+type Term = { id: number; name: string; definition: string; explanation?: string; evidence?: string; total_count?: number; recent_count?: number; parent_ids?: number[]; child_ids?: number[]; domain_ids?: number[] };
 type Detail = Project & { domains: Term[]; spaces: Term[]; technologies: Term[]; sources: { source: string; url: string; date_evidence: string | null; date_type: string; available: boolean }[] };
 type Feed = { items: Project[]; next_offset: number | null; source_status: { last_success: string; coverage_note: string } | null };
 const date = (value: string | null) => value ? new Date(value).toLocaleDateString(undefined, { timeZone: "UTC", year: "numeric", month: "short", day: "numeric" }) : "Unknown date";
@@ -17,12 +17,14 @@ export default function Discovery() {
   const [detailError, setDetailError] = useState("");
   const [light, setLight] = useState(false);
   const [spaces, setSpaces] = useState<Term[]>([]);
+  const [domains, setDomains] = useState<Term[]>([]);
   const [spaceId, setSpaceId] = useState<number | null>(null);
   const [spacesError, setSpacesError] = useState(false);
   const feedRequest = useRef(0);
   const dialog = useRef<HTMLDialogElement>(null);
   const opener = useRef<HTMLElement | null>(null);
   const request = useRef(0);
+  const selectedSpace = spaces.find(s => s.id === spaceId);
 
   async function load(offset = 0) {
     const current = ++feedRequest.current;
@@ -39,6 +41,7 @@ export default function Discovery() {
   }
   useEffect(() => { setItems([]); setNext(null); void load(); }, [spaceId]);
   useEffect(() => { fetch("/api/spaces").then(r => { if (!r.ok) throw new Error(); return r.json(); }).then(setSpaces).catch(() => setSpacesError(true)); }, []);
+  useEffect(() => { fetch("/api/domains").then(r => r.ok ? r.json() : []).then(setDomains).catch(() => {}); }, []);
 
   async function open(project: Project) {
     opener.current = document.activeElement as HTMLElement;
@@ -65,10 +68,14 @@ export default function Discovery() {
         <label htmlFor="space">Browse a problem space </label>
         <select id="space" value={spaceId ?? ""} onChange={e => setSpaceId(e.target.value ? Number(e.target.value) : null)}>
           <option value="">All spaces · Recently Added</option>
-          {spaces.map(space => <option key={space.id} value={space.id}>{space.name} ({space.total_count})</option>)}
+          {spaces.map(space => <option key={space.id} value={space.id}>{space.parent_ids?.length ? "↳ " : ""}{space.name} ({space.recent_count ?? 0} recent / {space.total_count} total)</option>)}
         </select>
         {spacesError && <p>Problem spaces could not be loaded. Refresh to retry.</p>}
-        {spaceId && <><p>{spaces.find(s => s.id === spaceId)?.definition}</p><button onClick={() => setSpaceId(null)}>Reset to all spaces</button></>}
+        {spaceId && <><p>{selectedSpace?.definition}</p><p>{selectedSpace?.recent_count ?? 0} recent · {selectedSpace?.total_count ?? 0} total catalog projects, including subcategories. Recent means published within 90 days.</p>
+          {(["parent_ids", "child_ids"] as const).map(key => <nav key={key} aria-label={key === "parent_ids" ? "Broader spaces" : "Narrower spaces"}>{!!selectedSpace?.[key]?.length && <p>{key === "parent_ids" ? "Broader spaces" : "Narrower spaces"}</p>}{selectedSpace?.[key]?.map(id => { const related = spaces.find(s => s.id === id); return related && <button key={id} onClick={() => setSpaceId(id)}>{related.name}</button>; })}</nav>)}
+          {!!selectedSpace?.domain_ids?.length && <p className="coverage">Domains: {domains.filter(d => selectedSpace.domain_ids?.includes(d.id)).map(d => d.name).join(", ")}</p>}
+          <button onClick={() => setSpaceId(null)}>Reset to all spaces</button></>}
+        {!!domains.length && <details><summary>Domains in this catalog</summary><ul>{domains.map(domain => <li key={domain.id}>{domain.name}: {domain.recent_count} recent · {domain.total_count} total</li>)}</ul><p className="coverage">Distinct catalog projects, not growth or complete ecosystem activity.</p></details>}
       </section>
       {error && <p role="alert">{error} <button onClick={() => load(items.length ? next ?? 0 : 0)}>Retry</button></p>}
       <section className="cards" aria-label="Recently published projects" aria-busy={busy}>

@@ -61,4 +61,4 @@ Verified locally on September 8, 2026: four PostgreSQL integration tests, the pr
 
 ## Classification
 
-The shared classification path and space-browsing UI are implemented. OpenRouter with Nemotron 3 Super (free) is wired in; the API key is configured and the initial live review is complete; see [implementation status](docs/classification-implementation.md). See [the live review](docs/classification-review.md) for results and quality limitations. Hierarchy and the graph are the next slices.
+The shared classification path and space-browsing UI are implemented. OpenRouter with Nemotron 3 Super (free) is wired in; the API key is configured and the initial live review is complete; see [implementation status](docs/classification-implementation.md). See [the live review](docs/classification-review.md) for results and quality limitations. Hierarchy and distinct descendant counts are implemented; see [hierarchy setup and live review](docs/hierarchy-implementation.md). The Sigma.js graph is the next slice.

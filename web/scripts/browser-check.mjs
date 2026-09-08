@@ -19,6 +19,16 @@ try {
     const loaded = page.waitForResponse(r => r.url().includes(`space_id=${liveSpaces[0].id}`));
     await page.getByLabel("Browse a problem space").selectOption(String(liveSpaces[0].id));
     assert.equal((await loaded).status(), 200);
+    if (liveSpaces[0].child_ids?.length) {
+      const childId = liveSpaces[0].child_ids[0];
+      const child = liveSpaces.find(s => s.id === childId);
+      const childLoaded = page.waitForResponse(r => r.url().includes(`space_id=${childId}`));
+      await page.getByRole("navigation", { name: "Narrower spaces" }).getByRole("button", { name: child.name, exact: true }).click();
+      await childLoaded;
+      const parentLoaded = page.waitForResponse(r => r.url().includes(`space_id=${liveSpaces[0].id}`));
+      await page.getByRole("navigation", { name: "Broader spaces" }).getByRole("button", { name: liveSpaces[0].name, exact: true }).click();
+      await parentLoaded;
+    }
     await cards.first().click();
     await page.locator("dialog blockquote").first().waitFor();
     assert.ok((await page.locator("dialog blockquote").first().innerText()).length > 0);

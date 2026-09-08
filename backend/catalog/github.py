@@ -19,6 +19,9 @@ def eligible(repo):
 
 def persist(conn, repo):
     source_id = str(repo["id"])
+    conn.execute("""DELETE FROM project_terms WHERE project_id IN
+        (SELECT id FROM projects WHERE canonical_key=%s AND (name<>%s OR description<>%s))""",
+        (f"github:{source_id}", repo["name"], repo["description"].strip()))
     project = conn.execute(
         """INSERT INTO projects(canonical_key,name,description,publication_date)
         VALUES (%s,%s,%s,%s) ON CONFLICT(canonical_key) DO UPDATE SET

@@ -36,6 +36,22 @@ try {
   await page.getByRole("link", { name: "View on GitHub" }).waitFor();
   assert.ok(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth));
   await page.getByRole("button", { name: "Close" }).click();
+  // Provider-independent classification UI fixture; no test records enter the catalog.
+  const fixture = { id: 900001, name: "Field Journal", description: "Record field observations", publication_date: null };
+  const term = { id: 900002, name: "Recording observations", definition: "Help people capture and retain observations.", total_count: 1, explanation: "The project records observations.", evidence: "Record field observations" };
+  await page.route("**/api/spaces", route => route.fulfill({ json: [term] }));
+  await page.route("**/api/projects?*", route => route.fulfill({ json: { items: [fixture], next_offset: null, source_status: null } }));
+  await page.route("**/api/projects/900001", route => route.fulfill({ json: { ...fixture, sources: [], spaces: [term], domains: [], technologies: [] } }));
+  await page.reload();
+  await page.getByLabel("Browse a problem space").selectOption("900002");
+  await page.getByText(term.definition, { exact: true }).waitFor();
+  await page.getByRole("button", { name: "View Field Journal" }).click();
+  await page.locator("dialog blockquote").waitFor();
+  assert.equal(await page.locator("dialog blockquote").innerText(), term.evidence);
+  await page.getByRole("button", { name: "Browse Recording observations" }).click();
+  assert.equal(await page.locator("dialog").evaluate(el => el.open), false);
+  await page.getByRole("button", { name: "Reset to all spaces" }).click();
+  assert.equal(await page.getByLabel("Browse a problem space").inputValue(), "");
   await page.route("**/api/projects?*", route => route.fulfill({ status: 503, body: "unavailable" }));
   await page.reload();
   await page.locator("main [role=alert]").waitFor();
@@ -43,7 +59,7 @@ try {
   await page.getByRole("button", { name: "Retry" }).click();
   await page.getByText("No recent projects yet.", { exact: false }).waitFor();
   assert.deepEqual(errors, []);
-  console.log("Browser checks passed: real feed/detail, keyboard/scroll restoration, pagination, theme, mobile, error retry and empty state.");
+  console.log("Browser checks passed: real feed/detail, keyboard/scroll restoration, pagination, theme, mobile, classified-space fixture, error retry and empty state.");
 } finally {
   await browser.close();
 }

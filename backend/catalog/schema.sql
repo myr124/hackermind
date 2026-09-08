@@ -31,3 +31,25 @@ CREATE TABLE IF NOT EXISTS discovery_checkpoint (
 ALTER TABLE discovery_checkpoint ADD COLUMN IF NOT EXISTS discovery_policy text NOT NULL DEFAULT 'updated-v1';
 ALTER TABLE projects ADD COLUMN IF NOT EXISTS eligible boolean NOT NULL DEFAULT true;
 ALTER TABLE projects ADD COLUMN IF NOT EXISTS eligibility_reason text;
+CREATE TABLE IF NOT EXISTS terms (
+    id bigint GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+    kind text NOT NULL CHECK (kind IN ('domain','space','technology')),
+    name text NOT NULL,
+    definition text NOT NULL,
+    normalized_name text NOT NULL,
+    UNIQUE(kind, normalized_name)
+);
+CREATE TABLE IF NOT EXISTS project_terms (
+    project_id bigint NOT NULL REFERENCES projects(id),
+    term_id bigint NOT NULL REFERENCES terms(id),
+    explanation text NOT NULL,
+    evidence text NOT NULL,
+    PRIMARY KEY(project_id,term_id)
+);
+CREATE TABLE IF NOT EXISTS classification_runs (
+    project_id bigint PRIMARY KEY REFERENCES projects(id),
+    input_hash text NOT NULL,
+    rules_version text NOT NULL,
+    model text NOT NULL,
+    classified_at timestamptz NOT NULL DEFAULT now()
+);

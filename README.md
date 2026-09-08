@@ -58,3 +58,7 @@ The browser check requires both servers and a populated catalog. It checks real 
 For a real-data demo, run one GitHub page, inspect the feed and date evidence, then rerun with `--restart --max-pages 1`. Existing GitHub IDs should retain one canonical project and one source record; newly encountered IDs may increase counts because search order changes.
 
 Verified locally on September 8, 2026: four PostgreSQL integration tests, the production build with TypeScript checks, and the browser check passed. Two real GitHub batches accepted 22 and 18 repositories, leaving 40 unique projects and 40 unique source records. Both responses reported incomplete results, and the page remained queued for retry with that warning visible in the collection details. Sampling also exposed low-information and profile repositories passing the metadata heuristic; eligibility quality still needs improvement before treating this as a curated catalog.
+
+## Classification work in progress
+
+The shared classification path and space-browsing UI are implemented. Hosted provider configuration and real-model validation are pending; see [implementation status](docs/classification-implementation.md). No production classifications are assigned yet.

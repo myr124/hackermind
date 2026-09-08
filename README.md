@@ -61,4 +61,4 @@ Verified locally on September 8, 2026: four PostgreSQL integration tests, the pr
 
 ## Classification work in progress
 
-The shared classification path and space-browsing UI are implemented. Hosted provider configuration and real-model validation are pending; see [implementation status](docs/classification-implementation.md). No production classifications are assigned yet.
+The shared classification path and space-browsing UI are implemented. OpenRouter with Nemotron 3 Super (free) is wired in; API-key configuration and real-model validation are pending; see [implementation status](docs/classification-implementation.md). No production classifications are assigned yet.

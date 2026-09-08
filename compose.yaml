@@ -1,0 +1,18 @@
+services:
+  db:
+    image: pgvector/pgvector:pg17
+    environment:
+      POSTGRES_USER: hackermind
+      POSTGRES_PASSWORD: local-development-only
+      POSTGRES_DB: hackermind
+    ports:
+      - "127.0.0.1:54329:5432"
+    volumes:
+      - catalog:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U hackermind"]
+      interval: 2s
+      timeout: 3s
+      retries: 30
+volumes:
+  catalog:

@@ -10,7 +10,7 @@ Assignments below 0.8 reported confidence remain empty. Accepted assignments req
 
 Classification replaces a project's assignments atomically. Failed responses preserve previously committed work. Metadata hashes and rules/model versions allow development reprocessing while skipping unchanged projects. GitHub metadata changes remove stale assignments; reprocessing sees the changed hash. Ineligible records are excluded before model calls. Model requests receive only the project name/description and catalog definitions, never source credentials.
 
-`GET /spaces` and `GET /projects?space_id=…` support conventional browsing; details show assignments, definitions, explanations and quotes. Space browsing includes older and unknown-date projects, with unknown dates last. These are direct-assignment counts; descendant hierarchy and counts belong to #7.
+`GET /spaces` and `GET /projects?space_id=…` support conventional browsing; details show assignments, definitions, explanations and quotes. Space browsing includes older and unknown-date projects, with unknown dates last. Counts and browsing include distinct descendant projects through the hierarchy implemented in #7. See [hierarchy implementation](hierarchy-implementation.md).
 
 Verification so far: 32 backend tests pass and the production frontend build passes. Tests cover definition reuse, new terms, uncertainty, distinct kinds, evidence rejection, rollback, reprocessing, changed metadata, eligibility, and space browsing/date behavior. Browser checks cover real feed/detail behavior plus an isolated classified-space fixture. Real hosted classification and browser review are now recorded in classification-review.md.
 

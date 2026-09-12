@@ -9,6 +9,7 @@ try {
   const errors = [];
   page.on("pageerror", error => errors.push(error.message));
   await page.goto(base);
+  await page.getByRole("button", { name: "Recently Added", exact: true }).click();
   const cards = page.locator(".card");
   await cards.first().waitFor();
   assert.ok(await cards.count() > 0, "Run a real discovery batch first");
@@ -67,6 +68,7 @@ try {
   await page.route("**/api/projects?*", route => route.fulfill({ json: { items: [fixture], next_offset: null, source_status: null } }));
   await page.route("**/api/projects/900001", route => route.fulfill({ json: { ...fixture, sources: [], spaces: [term], domains: [], technologies: [] } }));
   await page.reload();
+  await page.getByRole("button", { name: "Recently Added", exact: true }).click();
   await page.getByLabel("Browse a problem space").selectOption("900002");
   await page.getByText(term.definition, { exact: true }).waitFor();
   await page.getByRole("button", { name: "View Field Journal" }).click();
@@ -78,6 +80,7 @@ try {
   assert.equal(await page.getByLabel("Browse a problem space").inputValue(), "");
   await page.route("**/api/projects?*", route => route.fulfill({ status: 503, body: "unavailable" }));
   await page.reload();
+  await page.getByRole("button", { name: "Recently Added", exact: true }).click();
   await page.locator("main [role=alert]").waitFor();
   await page.route("**/api/projects?*", route => route.fulfill({ json: { items: [], next_offset: null, source_status: null } }));
   await page.getByRole("button", { name: "Retry" }).click();

@@ -1,5 +1,7 @@
 "use client";
 import { useEffect, useRef, useState } from "react";
+import dynamic from "next/dynamic";
+const Network = dynamic(() => import("./network"), { ssr: false });
 
 type Project = { id: number; name: string; description: string; publication_date: string | null };
 type Term = { id: number; name: string; definition: string; explanation?: string; evidence?: string; total_count?: number; recent_count?: number; parent_ids?: number[]; child_ids?: number[]; domain_ids?: number[] };
@@ -16,6 +18,8 @@ export default function Discovery() {
   const [detail, setDetail] = useState<Detail | null>(null);
   const [detailError, setDetailError] = useState("");
   const [light, setLight] = useState(false);
+  const [view, setView] = useState<"spaces" | "projects">("spaces");
+  const scrollPositions = useRef({spaces:0,projects:0});
   const [spaces, setSpaces] = useState<Term[]>([]);
   const [domains, setDomains] = useState<Term[]>([]);
   const [spaceId, setSpaceId] = useState<number | null>(null);
@@ -43,7 +47,12 @@ export default function Discovery() {
   useEffect(() => { fetch("/api/spaces").then(r => { if (!r.ok) throw new Error(); return r.json(); }).then(setSpaces).catch(() => setSpacesError(true)); }, []);
   useEffect(() => { fetch("/api/domains").then(r => r.ok ? r.json() : []).then(setDomains).catch(() => {}); }, []);
 
-  async function open(project: Project) {
+  function switchView(nextView: "spaces" | "projects") {
+    scrollPositions.current[view] = window.scrollY;
+    setView(nextView);
+    requestAnimationFrame(() => window.scrollTo(0,scrollPositions.current[nextView]));
+  }
+  async function open(project: Pick<Project,"id">) {
     opener.current = document.activeElement as HTMLElement;
     const current = ++request.current;
     setDetail(null); setDetailError("");
@@ -58,12 +67,13 @@ export default function Discovery() {
   }
   function closed() { request.current++; document.body.style.overflow = ""; opener.current?.focus({ preventScroll: true }); }
   return <div data-theme={light ? "light" : "dark"}>
-    <header><a className="brand" href="/">&gt;_ HACKERMIND</a><span>Recently Added</span><button onClick={() => setLight(!light)}>{light ? "Dark" : "Light"} theme</button></header>
+    <header><a className="brand" href="/">&gt;_ HACKERMIND</a><nav aria-label="Discovery views"><button aria-pressed={view === "spaces"} onClick={()=>switchView("spaces")}>Problem Spaces</button><button aria-pressed={view === "projects"} onClick={()=>switchView("projects")}>Recently Added</button></nav><button onClick={() => setLight(!light)}>{light ? "Dark" : "Light"} theme</button></header>
     <main>
       <h1>Find your next starting point.</h1>
       <p>Real projects, recently published. Follow something that sparks your curiosity.</p>
       <p className="coverage">GitHub · {status ? `Last refreshed ${date(status.last_success)}` : "No successful refresh yet"} · Partial catalog coverage</p>
       {status && <details><summary>About this collection</summary><p>{status.coverage_note}</p><p>GitHub repository creation is used as a publication-date fallback. Uncertain classifications remain unassigned.</p></details>}
+      <div hidden={view !== "spaces"}><Network selected={spaceId} light={light} visible={view === "spaces"} domains={domains} onSelect={setSpaceId} onProject={id=>open({id})} onBrowse={()=>switchView("projects")}/></div>
       <section aria-label="Problem spaces" className="space-browser">
         <label htmlFor="space">Browse a problem space </label>
         <select id="space" value={spaceId ?? ""} onChange={e => setSpaceId(e.target.value ? Number(e.target.value) : null)}>
@@ -77,6 +87,7 @@ export default function Discovery() {
           <button onClick={() => setSpaceId(null)}>Reset to all spaces</button></>}
         {!!domains.length && <details><summary>Domains in this catalog</summary><ul>{domains.map(domain => <li key={domain.id}>{domain.name}: {domain.recent_count} recent · {domain.total_count} total</li>)}</ul><p className="coverage">Distinct catalog projects, not growth or complete ecosystem activity.</p></details>}
       </section>
+      <div hidden={view !== "projects"}>
       {error && <p role="alert">{error} <button onClick={() => load(items.length ? next ?? 0 : 0)}>Retry</button></p>}
       <section className="cards" aria-label="Recently published projects" aria-busy={busy}>
         {items.map(project => <article key={project.id}><button className="card" onClick={() => open(project)} aria-label={`View ${project.name}`}><span className="source">GitHub</span><h2>{project.name}</h2><p>{project.description}</p><footer><time dateTime={project.publication_date || undefined}>{date(project.publication_date)}</time><span>Repository-created fallback</span></footer></button></article>)}
@@ -84,6 +95,7 @@ export default function Discovery() {
       {!busy && !error && !items.length && <p className="empty">{spaceId ? "No available projects in this space." : "No recent projects yet. Run the GitHub discovery batch to populate this collection."}</p>}
       <p role="status">{busy ? "Loading projects…" : `${items.length} projects shown`}</p>
       {next !== null && <button disabled={busy} onClick={() => load(next)}>Load more projects</button>}
+      </div>
     </main>
     <dialog ref={dialog} onClose={closed} aria-labelledby="detail-title" onClick={event => { if (event.target === dialog.current) dialog.current.close(); }}>
       <div className="detail"><button className="close" autoFocus onClick={() => dialog.current?.close()}>Close ×</button><h2 id="detail-title">{detail?.name || "Project details"}</h2>

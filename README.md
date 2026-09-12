@@ -1,6 +1,6 @@
 # Hackermind
 
-Phase 1 ticket #1: browse real GitHub projects locally. The production slice uses Next.js/TypeScript, FastAPI, and PostgreSQL with pgvector. The graph is a later slice; Sigma.js is selected in the spec. The separate `prototype/` is fictional UI exploration.
+Browse real GitHub projects through a Sigma.js graph and a Recently Added feed. The production slice uses Next.js/TypeScript, FastAPI, and PostgreSQL with pgvector. The separate `prototype/` is fictional UI exploration.
 
 ## Run locally
 
@@ -34,7 +34,7 @@ Public GitHub search works without a token but has lower rate limits. Optionally
 
 Discovery searches all domains without popularity thresholds, excluding forks and archived repositories. GitHub search exposes at most 1,000 results per query. Discovery ranks repositories created within that window by total stars, descending, as an initial trending proxy. This measures popularity among new repositories, not recent star growth or GitHub’s Trending ranking ([GitHub search documentation](https://docs.github.com/en/rest/search/search#search-repositories)). Star rankings can change, so pagination may repeat or skip records; this is a bounded partial sample, not exhaustive coverage. Incomplete search responses retain usable records and a coverage warning while leaving that page queued for retry. HTTP/rate-limit failures roll back the batch without advancing the checkpoint. Retry later or restart the rolling window. Repository creation is retained as a labeled publication fallback; modification/ingestion timestamps never become publication dates. Unknown, future, and older dates are excluded from the recent feed.
 
-Eligibility uses shared name/description/link rules plus repository flags: it rejects unusable metadata, profiles, forks, templates, reading collections, tutorials, starter templates, and standalone model/dataset/asset records. Run `uv run python -m catalog.eligibility` to recheck existing records without deleting evidence; see [the reviewed sample](docs/eligibility-review.md). It is a conservative heuristic with false positives and negatives, not semantic classification or a guarantee that all repositories are eligible builds. Automatic classification and its quality review are later tickets. Domains, problem spaces, and technologies remain unassigned in this slice.
+Eligibility uses shared name/description/link rules plus repository flags: it rejects unusable metadata, profiles, forks, templates, reading collections, tutorials, starter templates, and standalone model/dataset/asset records. Run `uv run python -m catalog.eligibility` to recheck existing records without deleting evidence; see [the reviewed sample](docs/eligibility-review.md). It is a conservative heuristic with false positives and negatives, not semantic classification or a guarantee that all repositories are eligible builds. Hosted classification assigns domains, problem spaces, and technologies when supported by the metadata; uncertain projects remain browsable without assignments.
 
 ## Verify
 
@@ -51,6 +51,9 @@ pnpm check
 pnpm build
 pnpm exec playwright install chromium
 node scripts/browser-check.mjs
+node scripts/graph-browser-check.mjs
+# Node 22.18+ (native TypeScript loading):
+node scripts/graph-layout-check.mjs
 ```
 
 The browser check requires both servers and a populated catalog. It checks real feed/detail navigation, keyboard focus and scroll restoration, pagination when available, themes, mobile sizing, error retry, and empty state. Set `BASE_URL` for another frontend port and `CHROMIUM_PATH` to use an existing Chromium executable.
@@ -61,4 +64,4 @@ Verified locally on September 8, 2026: four PostgreSQL integration tests, the pr
 
 ## Classification
 
-The shared classification path and space-browsing UI are implemented. OpenRouter with Nemotron 3 Super (free) is wired in; the API key is configured and the initial live review is complete; see [implementation status](docs/classification-implementation.md). See [the live review](docs/classification-review.md) for results and quality limitations. Hierarchy and distinct descendant counts are implemented; see [hierarchy setup and live review](docs/hierarchy-implementation.md). The Sigma.js graph is the next slice.
+The shared classification path and space-browsing UI are implemented. OpenRouter with Nemotron 3 Super (free) is wired in; the API key is configured and the initial live review is complete; see [implementation status](docs/classification-implementation.md). See [the live review](docs/classification-review.md) for results and quality limitations. Hierarchy and distinct descendant counts are implemented; see [hierarchy setup and live review](docs/hierarchy-implementation.md). The Sigma.js graph is implemented; see [graph behavior and verification](docs/graph-implementation.md).

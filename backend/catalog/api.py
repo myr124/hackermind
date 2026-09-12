@@ -5,6 +5,7 @@ from fastapi import FastAPI, HTTPException, Query
 
 from .db import connect, migrate
 from .spaces import REACH, list_spaces, list_domains
+from .graph import graph_payload
 
 
 @asynccontextmanager
@@ -43,6 +44,12 @@ def spaces():
 def domains():
     with connect() as conn:
         return list_domains(conn)
+
+
+@app.get("/graph")
+def graph(space_id: int | None = Query(None, ge=1)):
+    with connect() as conn:
+        return graph_payload(conn,space_id)
 
 
 @app.get("/projects/{project_id}")
